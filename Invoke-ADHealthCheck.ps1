@@ -7,12 +7,11 @@
 }
 
 Import-Module \\opsadmin101\Scripts\Modules\Pester
-Import-Module \\opsadmin101\Scripts\Modules\HTML.Automation
 
 Set-Location -Path (Split-Path $MyInvocation.MyCommand.Path)
 $Tests = Invoke-Pester -PassThru
 
-$Failed = @($Tests | Select -ExpandProperty TestResult | Where Result -eq "Failed" | Sort Context,Name | Select @{Name="Test Name";Expression={ $_.Context }},Name,Result,Time | ConvertTo-Html -Fragment) # | Set-CellColor -Property Result -Color Red -Filter "Result -eq 'Failed'")
+$Failed = @($Tests | Select -ExpandProperty TestResult | Where Result -eq "Failed" | Sort Context,Name | Select @{Name="Test Name";Expression={ $_.Context }},Name,Result,Time | ConvertTo-Html -Fragment)
 $Passed = $Tests | Select -ExpandProperty TestResult | Where Result -eq "Passed" | Sort Context,Name | Select @{Name="Test Name";Expression={ $_.Context }},Name,Result,Time | ConvertTo-Html -Fragment
 
 $Summary = $Tests | Select @{Name="Tests Run";Expression={ $_.TotalCount }},

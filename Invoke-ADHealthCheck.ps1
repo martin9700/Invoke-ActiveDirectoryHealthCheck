@@ -1,7 +1,6 @@
 ﻿$MailSplat = @{
     To         = "mpugh@athenahealth.com"
     From       = "no-reply@athenahealth.com"
-    Subject    = "Active Directory Operational Test"
     SMTPServer = "hub.corp.athenahealth.com"
     BodyAsHtml = $true
 }
@@ -39,6 +38,7 @@ $Failed
 "@
 }
 
+$DomainName = Get-ADDomain | Select -ExpandProperty NetBIOSName
 $HTML = @"
 <html>
 <header>
@@ -59,7 +59,7 @@ Active Directory Operational Test
 <p>
 <h1>Active Directory Operational Test</h1>
 <br/>
-<div>$(Get-ADDomain | Select -ExpandProperty NetBIOSName) Summary</div>
+<div>$DomainName Summary</div>
 $Summary
 <br/>
 <br/>
@@ -72,4 +72,4 @@ $Passed
 $HTMLPath = Join-Path -Path (Split-Path $MyInvocation.MyCommand.Path) -ChildPath "ADOpTest.html"
 $HTML | Out-File $HTMLPath -Encoding ascii
 
-Send-MailMessage -Body $HTML @MailSplat
+Send-MailMessage -Body $HTML -Subject "Active Directory Operational Test for $DomainName" @MailSplat

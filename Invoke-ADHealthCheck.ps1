@@ -59,7 +59,7 @@ Active Directory Operational Test
 <p>
 <h1>Active Directory Operational Test</h1>
 <br/>
-<div>Summary</div>
+<div>$(Get-ADDomain | Select -ExpandProperty NetBIOSName) Summary</div>
 $Summary
 <br/>
 <br/>

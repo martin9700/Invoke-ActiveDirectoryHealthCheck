@@ -34,15 +34,6 @@ Describe "Active Directory Health Checks" {
     }
 }
 
-#Clean out old DCDiag Reports
-$DiagPath = Join-Path -Path (Split-Path $Script:MyInvocation.MyCommand.Path) -ChildPath "Diag Reports"
-If (-not (Test-Path $DiagPath))
-{
-    New-Item -Path $DiagPath -ItemType Directory | Out-Null
-}
-Get-ChildItem -Path $DiagPath\*.log | Where LastWriteTime -lt (Get-Date).AddYears(-1) | Remove-Item -Force -Confirm:$false
-$DiagFile = Join-Path -Path $DiagPath -ChildPath "DCDiag-$DC-$(Get-Date -Format 'MM-dd-yyyy').log"
-
 #DCDiag tests
 #Heavily modifed from https://gallery.technet.microsoft.com/scriptcenter/Parse-DCDIAG-with-ce430b71
 ForEach ($DC in $DCs)

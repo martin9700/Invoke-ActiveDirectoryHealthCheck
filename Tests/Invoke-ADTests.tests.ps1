@@ -5,14 +5,6 @@ $DCs = Get-ADDomainController -Filter * | Select -ExpandProperty Name #| Select 
 $TextInfo = (Get-Culture).TextInfo
 
 Describe "Active Directory Health Checks" {
-    #Discovery Test
-    Context "Domain Discovery" {
-        $DC = Get-ADDomainController -Discover
-        It "Found Domain Controller" {
-            $DC | Should Not BeNullOrEmpty
-        }
-    }
-
     #Replication tests
     Context "Domain Replication" {
         $ReplErrors = Get-ADReplicationPartnerMetadata -Target * -Partition *
@@ -28,7 +20,8 @@ Describe "Active Directory Health Checks" {
     Context "DNS Diagnostics" {
         $DC = Get-ADDomainController -Discover
         $ResultFilePath = $DiagFile -f "DNS-$DC"
-        $DCDiag = Dcdiag.exe /s:$DC /v /test:DNS | ForEach {
+        $DCDiag = Invoke-Command -ComputerName $DC -ArgumentList $DC -ScriptBlock { Dcdiag.exe /s:$args /v /test:DNS /DNSBasic /DNSDelegation /DNSDynamicUpdate /DNSRecordRegistration /DNSResolveExtName }
+        $DCDiag | ForEach {
             Switch -RegEx ($_)
             {
                 "passed test Connectivity"   { $TestName = $Null; $TestStatus = $Null; Break }
@@ -49,7 +42,6 @@ Describe "Active Directory Health Checks" {
 	            $TestName = $Null
                 $TestStatus = $Null
             }
-            Write-Output $_
         }
         $DCDiag | Out-File -FilePath $ResultFilePath
     }
@@ -68,7 +60,9 @@ Describe "Active Directory Health Checks" {
             #DCDiag Tests
             #Heavily modifed from https://gallery.technet.microsoft.com/scriptcenter/Parse-DCDIAG-with-ce430b71
             $ResultFilePath = $DiagFile -f $DC
-            $DCDiag = Dcdiag.exe /s:$DC /v /skip:Replications /skip:kccevent /skip:dfsrevent /skip:systemlog | ForEach {
+            $DCDiag = Invoke-Command -ComputerName $DC -ArgumentList $DC -ScriptBlock { Dcdiag.exe /s:$args /v }
+            #$DCDiag = Dcdiag.exe /s:$DC /v /skip:Replications /skip:kccevent /skip:dfsrevent /skip:systemlog | ForEach {
+            $DCDiag | ForEach {
                 Switch -RegEx ($_)
                 {
 	                "Starting"          { $TestName = ($_ -Replace ".*Starting test: ").Trim(); Break }

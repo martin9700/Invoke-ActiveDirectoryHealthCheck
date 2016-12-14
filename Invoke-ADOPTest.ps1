@@ -45,6 +45,8 @@ Param (
 
 $MailSplat = @{
     To         = $To
+    From       = "no-reply@surlyadmin.com"
+    SMTPServer = "your.smtprelayserver.com"
     BodyAsHtml = $true
 }
 
